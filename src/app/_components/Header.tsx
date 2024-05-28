@@ -1,11 +1,15 @@
+"use client";
+
 import React from "react";
 import style from "styled-components";
 
 export function Header() {
   return (
-    <HeaderDiv>
-      <Title>Spotify Analyser</Title>
-    </HeaderDiv>
+    <>
+      <HeaderDiv>
+        <Title>Spotify Analyser</Title>
+      </HeaderDiv>
+    </>
   );
 }
 

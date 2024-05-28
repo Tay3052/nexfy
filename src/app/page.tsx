@@ -1,7 +1,5 @@
 "use client";
-
 import { useRouter } from "next/navigation";
-import { Header } from "../app/_components/Header";
 import style from "styled-components";
 
 export default function Home() {
@@ -13,7 +11,6 @@ export default function Home() {
 
   return (
     <>
-      <Header />
       <Div1>
         <h1>Welcome to Spotify Auth</h1>
         <button onClick={handleLogin}>Login with Spotify</button>
@@ -24,6 +21,5 @@ export default function Home() {
 
 const Div1 = style.div`
   text-align: center;
-  margin: 3rem 0;
   padding: 2rem;
 `;
