@@ -4,7 +4,7 @@ import { NextRequest, NextResponse } from "next/server";
 
 const client_id = process.env.SPOTIFY_CLIENT_ID;
 const client_secret = process.env.SPOTIFY_CLIENT_SECRET;
-const redirect_uri = process.env.SPOTIFY_CALLBACK_URL;
+const redirect_uri = process.env.SPOTIFY_CLIENT_REDIRECT_URI;
 
 export async function GET(request: NextRequest) {
   const { searchParams } = new URL(request.url);

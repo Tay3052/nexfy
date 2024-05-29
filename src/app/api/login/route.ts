@@ -5,7 +5,7 @@ import querystring from "querystring";
 // クライアントID
 const client_id = process.env.SPOTIFY_CLIENT_ID;
 // コールバックURL
-const redirect_uri = process.env.SPOTIFY_CALLBACK_URL;
+const redirect_uri = process.env.SPOTIFY_CALLBACK_URI;
 
 function generateRandomString(length: number) {
   let text = "";

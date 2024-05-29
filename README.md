@@ -2,6 +2,16 @@
 
 音楽のサブスクサービスである Spotify を使用して曲情報を取ってくるアプリ
 
+背景：昔 DJ をしていて、曲の MIX をさせる場合に同じ様な曲調、BPM（曲のテンポ）などが近しい音源を使用していた。これを Serato などで手動で解析して揃えるのが大変だった（曲のメタデータが壊れる、プレイリストが消えるなど）ので、Spotify で自分が作ったプレイリストと今回のアプリを連携させて BPM と曲調を見える化させることで、曲の構成などを直感的に触ることができる様になる様なアプリを作りたい。似たような曲調の BGM を探す事ができるのでプレイリストを分ける指標にもしたい。
+
+ターゲット：DJ をしている人、お店・イベントの BGM を統一させたい人
+
+仕様：ID とパスワードでログインし、自分のプレイリスト環境を取り出して曲の BPM や曲調(キー)などを一覧表示させたい。
+
+テンポなどの API パラメータ情報一覧
+
+[Web API Reference | Spotify for Developers](https://developer.spotify.com/documentation/web-api/reference/get-audio-features)
+
 This is a [Next.js](https://nextjs.org/) project bootstrapped with [`create-next-app`](https://github.com/vercel/next.js/tree/canary/packages/create-next-app).
 
 ## Getting Started
