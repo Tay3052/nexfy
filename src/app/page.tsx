@@ -1,6 +1,7 @@
 "use client";
 import { useRouter } from "next/navigation";
 import style from "styled-components";
+import { Button, ButtonGroup } from "@yamada-ui/react";
 
 export default function Home() {
   const router = useRouter();
@@ -12,12 +13,18 @@ export default function Home() {
   return (
     <>
       <Div1>
-        <h1 style={{ margin: "0 0 50px 0" }}>Welcome to Spotify Auth</h1>
-        <button onClick={handleLogin}>Login with Spotify</button>
+        <H1>Welcome to Spotify Auth</H1>
+        <Button colorScheme="secondary" onClick={handleLogin}>
+          Login with Spotify
+        </Button>
       </Div1>
     </>
   );
 }
+
+const H1 = style.h1`
+  font-size: 3rem;
+  margin: 0 0 50px 0;`;
 
 const Div1 = style.div`
   text-align: center;
