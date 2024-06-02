@@ -1,37 +1,53 @@
-/* eslint-disable @next/next/no-img-element */
-"use client";
-import { useEffect, useState } from "react";
-import { useRouter, useSearchParams } from "next/navigation";
-import { Button, ButtonGroup } from "@yamada-ui/react";
-import style from "styled-components";
-import {
-  Input,
-  InputGroup,
-  InputLeftAddon,
-  InputRightAddon,
-  InputLeftElement,
-  InputRightElement,
-} from "@yamada-ui/react";
+'use client';
+import React from 'react';
+import { useEffect, useState } from 'react';
+import { useRouter, useSearchParams } from 'next/navigation';
+import { Button } from '@yamada-ui/react';
+import style from 'styled-components';
+import { Input } from '@yamada-ui/react';
+
+interface Artist {
+  name: string;
+}
+
+interface Image {
+  url: string;
+}
+
+interface Track {
+  map(arg0: (track: Track) => React.JSX.Element): React.ReactNode;
+  id: string;
+  name: string;
+  artists: Artist[];
+  album: {
+    images: Image[];
+  };
+}
+
+interface TrackInfo {
+  id: string;
+  tempo: number;
+}
 
 const Search = () => {
   const router = useRouter();
   const searchParams = useSearchParams();
   const [accessToken, setAccessToken] = useState<string | null>(null);
-  const [query, setQuery] = useState<string>("");
-  const [results, setResults] = useState<any[]>([]);
-  const [tracksInfos, setTracksInfos] = useState<any[]>([]);
+  const [query, setQuery] = useState<string>('');
+  const [results, setResults] = useState<Track>([]);
+  const [tracksInfos, setTracksInfos] = useState<TrackInfo[]>([]);
 
   useEffect(() => {
-    const token = searchParams.get("access_token");
+    const token = searchParams.get('access_token');
     if (token) {
       setAccessToken(token);
-      localStorage.setItem("spotify_access_token", token);
+      localStorage.setItem('spotify_access_token', token);
     } else {
-      const storedToken = localStorage.getItem("spotify_access_token");
+      const storedToken = localStorage.getItem('spotify_access_token');
       if (storedToken) {
         setAccessToken(storedToken);
       } else {
-        router.push("/"); // トークンがなければホームページにリダイレクト
+        router.push('/'); // トークンがなければホームページにリダイレクト
       }
     }
   }, [searchParams, router]);
@@ -42,13 +58,13 @@ const Search = () => {
 
     const response = await fetch(
       `https://api.spotify.com/v1/search?q=${encodeURIComponent(
-        query
+        query,
       )}&type=track`,
       {
         headers: {
           Authorization: `Bearer ${accessToken}`,
         },
-      }
+      },
     );
 
     const data = await response.json();
@@ -57,24 +73,18 @@ const Search = () => {
 
     const fetchedTrackInfos = [];
     for (let i = 0; i < data.tracks.items.length; i++) {
-      const trackId = data.tracks.items[i].id;
       const trackInfoResponse = await fetch(
-        `https://api.spotify.com/v1/audio-features/${trackId}`,
+        `https://api.spotify.com/v1/tracks/${data.tracks.items[i].id}`,
         {
           headers: {
             Authorization: `Bearer ${accessToken}`,
           },
-        }
+        },
       );
 
-      if (trackInfoResponse.ok) {
-        const trackData = await trackInfoResponse.json();
-        fetchedTrackInfos.push(trackData);
-      } else {
-        console.error(`Failed to fetch track info for ${trackId}`);
-      }
-
-      // 遅延を挿入する
+      const trackData = await trackInfoResponse.json();
+      fetchedTrackInfos.push(trackData);
+      console.log(trackData);
       await sleep(1000);
     }
 
@@ -86,7 +96,7 @@ const Search = () => {
   };
 
   const getTrackInfo = (trackId: string) => {
-    return tracksInfos.find((info) => info.id === trackId);
+    return tracksInfos.find((info: TrackInfo) => info.id === trackId);
   };
 
   return (
@@ -94,23 +104,23 @@ const Search = () => {
       <H1>Search for a Song</H1>
       <SearchForm onSubmit={handleSearch}>
         <SearchInput
-          type="text"
+          type='text'
           value={query}
           onChange={(e) => setQuery(e.target.value)}
-          placeholder="Enter song name"
+          placeholder='Enter song name'
         />
-        <Button colorScheme="secondary" type="submit">
+        <Button colorScheme='secondary' type='submit'>
           Search
         </Button>
       </SearchForm>
       <div>
-        {results.length > 0 && (
+        {results && (
           <ul>
-            {results.map((track) => (
+            {results.map((track: Track) => (
               <li key={track.id}>
                 <p>
-                  {track.name} by{" "}
-                  {track.artists.map((artist: any) => artist.name).join(", ")}
+                  {track.name} by{' '}
+                  {track.artists.map((artist) => artist.name).join(', ')}
                 </p>
                 <img
                   src={track.album.images[0].url}
@@ -118,7 +128,7 @@ const Search = () => {
                   width={50}
                   height={50}
                 />
-                <p>BPM: {getTrackInfo(track.id)?.tempo ?? "N/A"}</p>
+                <p>BPM: {getTrackInfo(track.id)?.tempo ?? 'N/A'}</p>
               </li>
             ))}
           </ul>
