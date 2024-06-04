@@ -2,10 +2,16 @@
 "use client";
 import { useEffect, useState } from "react";
 import { useRouter, useSearchParams } from "next/navigation";
-import { Button } from "@yamada-ui/react";
+import { Button, ButtonGroup } from "@yamada-ui/react";
 import style from "styled-components";
-import { Input } from "@yamada-ui/react";
-import { TrackInfos } from "../interface/interface";
+import {
+  Input,
+  InputGroup,
+  InputLeftAddon,
+  InputRightAddon,
+  InputLeftElement,
+  InputRightElement,
+} from "@yamada-ui/react";
 
 const Search = () => {
   const router = useRouter();
@@ -13,7 +19,7 @@ const Search = () => {
   const [accessToken, setAccessToken] = useState<string | null>(null);
   const [query, setQuery] = useState<string>("");
   const [results, setResults] = useState<any[]>([]);
-  const [tracksInfos, setTracksInfos] = useState<TrackInfos[]>([]);
+  const [tracksInfos, setTracksInfos] = useState<any[]>([]);
 
   useEffect(() => {
     const token = searchParams.get("access_token");
@@ -68,15 +74,13 @@ const Search = () => {
         console.error(`Failed to fetch track info for ${trackId}`);
       }
 
-      // 遅延を挿入する(1個1秒)
+      // 遅延を挿入する
       await sleep(1000);
     }
 
     setTracksInfos(fetchedTrackInfos);
-    console.log(fetchedTrackInfos);
   };
 
-  // 曲情報をとるのに待機時間を作る
   const sleep = (ms: number) => {
     return new Promise((resolve) => setTimeout(resolve, ms));
   };
@@ -115,8 +119,6 @@ const Search = () => {
                   height={50}
                 />
                 <p>BPM: {getTrackInfo(track.id)?.tempo ?? "N/A"}</p>
-                <p>ENERGY: {getTrackInfo(track.id)?.energy ?? "N/A"}</p>
-                <p>MusicKEY: {getTrackInfo(track.id)?.key ?? "N/A"}</p>
               </li>
             ))}
           </ul>
