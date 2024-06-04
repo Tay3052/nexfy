@@ -30,6 +30,7 @@ const Search = () => {
     }
   }, [searchParams, router]);
 
+  // 検索ボタンを押した時に発火
   const handleSearch = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!accessToken || !query) return;
@@ -49,6 +50,7 @@ const Search = () => {
     setResults(data.tracks.items);
     console.log(data.tracks.items);
 
+    // 曲の情報を上で撮ってきたIDから取得
     const fetchedTrackInfos = [];
     for (let i = 0; i < data.tracks.items.length; i++) {
       const trackId = data.tracks.items[i].id;
