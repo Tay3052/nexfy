@@ -7,6 +7,7 @@ import style from "styled-components";
 import { Input } from "@yamada-ui/react";
 import { TrackInfos } from "../interface/interface";
 import { Tabs, TabList, Tab, TabPanels, TabPanel } from "@yamada-ui/react";
+import { search, trackInfos, sleep } from "../api/search/route";
 
 const Search = () => {
   const router = useRouter();
@@ -36,18 +37,9 @@ const Search = () => {
     e.preventDefault();
     if (!accessToken || !query) return;
 
-    const response = await fetch(
-      `https://api.spotify.com/v1/search?q=${encodeURIComponent(
-        query
-      )}&type=track`,
-      {
-        headers: {
-          Authorization: `Bearer ${accessToken}`,
-        },
-      }
-    );
+    const res = await search(query, accessToken);
 
-    const data = await response.json();
+    const data = await res.json();
     setResults(data.tracks.items);
     console.log(data.tracks.items);
 
@@ -57,14 +49,7 @@ const Search = () => {
     //
     for (let i = 0; i < data.tracks.items.length; i++) {
       const trackId = data.tracks.items[i].id;
-      const trackInfoResponse = await fetch(
-        `https://api.spotify.com/v1/audio-features/${trackId}`,
-        {
-          headers: {
-            Authorization: `Bearer ${accessToken}`,
-          },
-        }
-      );
+      const trackInfoResponse = await trackInfos(trackId, accessToken);
 
       if (trackInfoResponse.ok) {
         const trackData = await trackInfoResponse.json();
@@ -81,13 +66,16 @@ const Search = () => {
     console.log(fetchedTrackInfos);
   };
 
-  // 曲情報をとるのに待機時間を作る
-  const sleep = (ms: number) => {
-    return new Promise((resolve) => setTimeout(resolve, ms));
-  };
-
   const getTrackInfo = (trackId: string) => {
     return tracksInfos.find((info) => info.id === trackId);
+  };
+
+  const playList: string[] = [];
+
+  const handleAddToPlaylist = (event: unknown, trackId: string) => {
+    playList.push(trackId);
+    const listJson = JSON.stringify(playList);
+    console.log(listJson);
   };
 
   return (
@@ -114,45 +102,95 @@ const Search = () => {
               <Items>
                 {results.map((track) => (
                   <ResultItems key={track.id}>
-                    <ItemNames>
-                      <ItemImage
-                        src={track.album.images[0].url}
-                        alt={track.name}
-                        width={100}
-                        height={100}
-                      />
-                      <ItemDiv>
-                        <ItemName fontSize="4xl">
-                          {track.name} by{" "}
-                          {track.artists
-                            .map((artist: any) => artist.name)
-                            .join(", ")}
-                        </ItemName>
-                      </ItemDiv>
-                    </ItemNames>
-                    <ItemInfos>
-                      <Text>BPM: {getTrackInfo(track.id)?.tempo ?? "N/A"}</Text>
-                      <Text>
-                        ENERGY: {getTrackInfo(track.id)?.energy ?? "N/A"}
-                      </Text>
-                      <Text>
-                        MusicKEY: {getTrackInfo(track.id)?.key ?? "N/A"}
-                      </Text>
-                      <Text>
-                        Danceability:{" "}
-                        {getTrackInfo(track.id)?.danceability ?? "N/A"}
-                      </Text>
-                    </ItemInfos>
+                    <button
+                      onClick={(event) => handleAddToPlaylist(event, track.id)}>
+                      <ItemNames>
+                        <ItemImage
+                          src={track.album.images[0].url}
+                          alt={track.name}
+                          width={100}
+                          height={100}
+                        />
+                        <ItemDiv>
+                          <ItemName fontSize="4xl">
+                            {track.name} by{" "}
+                            {track.artists
+                              .map((artist: any) => artist.name)
+                              .join(", ")}
+                          </ItemName>
+                        </ItemDiv>
+                      </ItemNames>
+                      <ItemInfos>
+                        <Text>
+                          BPM: {getTrackInfo(track.id)?.tempo ?? "N/A"}
+                        </Text>
+                        <Text>
+                          ENERGY: {getTrackInfo(track.id)?.energy ?? "N/A"}
+                        </Text>
+                        <Text>
+                          MusicKEY: {getTrackInfo(track.id)?.key ?? "N/A"}
+                        </Text>
+                        <Text>
+                          Danceability:{" "}
+                          {getTrackInfo(track.id)?.danceability ?? "N/A"}
+                        </Text>
+                      </ItemInfos>
+                    </button>
                   </ResultItems>
                 ))}
               </Items>
             )}
           </ResultDiv>
         </TabPanel>
+        {/* Playlist */}
         <TabPanel>
-          <div>
-            <p>PlayList</p>
-          </div>
+          <ResultDiv>
+            {playList.length > 0 && (
+              <Items>
+                {results.map((track) => (
+                  <ResultItems key={track}>
+                    {playList.includes(track.id) ? (
+                      <>
+                        <ItemNames>
+                          <ItemImage
+                            src={track.album.images[0].url}
+                            alt={track.name}
+                            width={100}
+                            height={100}
+                          />
+                          <ItemDiv>
+                            <ItemName fontSize="4xl">
+                              {track.name} by{" "}
+                              {track.artists
+                                .map((artist: any) => artist.name)
+                                .join(", ")}
+                            </ItemName>
+                          </ItemDiv>
+                        </ItemNames>
+                        <ItemInfos>
+                          <Text>
+                            BPM: {getTrackInfo(track.id)?.tempo ?? "N/A"}
+                          </Text>
+                          <Text>
+                            ENERGY: {getTrackInfo(track.id)?.energy ?? "N/A"}
+                          </Text>
+                          <Text>
+                            MusicKEY: {getTrackInfo(track.id)?.key ?? "N/A"}
+                          </Text>
+                          <Text>
+                            Danceability:{" "}
+                            {getTrackInfo(track.id)?.danceability ?? "N/A"}
+                          </Text>
+                        </ItemInfos>
+                      </>
+                    ) : (
+                      <></>
+                    )}
+                  </ResultItems>
+                ))}
+              </Items>
+            )}
+          </ResultDiv>
         </TabPanel>
       </Tabs>
     </SearchDiv>
