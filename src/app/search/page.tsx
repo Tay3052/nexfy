@@ -16,6 +16,7 @@ const Search = () => {
   const [query, setQuery] = useState<string>("");
   const [results, setResults] = useState<any[]>([]);
   const [tracksInfos, setTracksInfos] = useState<TrackInfos[]>([]);
+  const [playList, setPlayList] = useState<any[]>([]);
 
   useEffect(() => {
     const token = searchParams.get("access_token");
@@ -36,46 +37,49 @@ const Search = () => {
   const handleSearch = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!accessToken || !query) return;
-
     const res = await search(query, accessToken);
-
     const data = await res.json();
+    console.log(data);
     setResults(data.tracks.items);
     console.log(data.tracks.items);
 
     // 曲の情報を上で撮ってきたIDから取得
     // 曲情報を保存するための配列を指定
+
     const fetchedTrackInfos = [];
-    //
     for (let i = 0; i < data.tracks.items.length; i++) {
       const trackId = data.tracks.items[i].id;
       const trackInfoResponse = await trackInfos(trackId, accessToken);
-
       if (trackInfoResponse.ok) {
         const trackData = await trackInfoResponse.json();
         fetchedTrackInfos.push(trackData);
       } else {
         console.error(`Failed to fetch track info for ${trackId}`);
       }
-
-      // 遅延を挿入する(1個1秒)
+      // 遅延を挿入する
       await sleep(1000);
     }
-
     setTracksInfos(fetchedTrackInfos);
     console.log(fetchedTrackInfos);
   };
 
-  const getTrackInfo = (trackId: string) => {
-    return tracksInfos.find((info) => info.id === trackId);
+  const playListData: any[] = [];
+  const handleAddToPlaylist = (trackId: string) => {
+    try {
+      for (let i = 0; i < results.length; i++) {
+        if (results[i].id == trackId) {
+          playListData.push(results[i]);
+        }
+      }
+      setPlayList(playListData);
+      console.log(playList);
+    } catch (e) {
+      console.log(e);
+    }
   };
 
-  const playList: string[] = [];
-
-  const handleAddToPlaylist = (event: unknown, trackId: string) => {
-    playList.push(trackId);
-    const listJson = JSON.stringify(playList);
-    console.log(listJson);
+  const getTrackInfo = (trackId: string) => {
+    return tracksInfos.find((info) => info.id === trackId);
   };
 
   return (
@@ -103,7 +107,8 @@ const Search = () => {
                 {results.map((track) => (
                   <ResultItems key={track.id}>
                     <button
-                      onClick={(event) => handleAddToPlaylist(event, track.id)}>
+                      value={track.id}
+                      onClick={() => handleAddToPlaylist(track.id)}>
                       <ItemNames>
                         <ItemImage
                           src={track.album.images[0].url}
@@ -147,45 +152,37 @@ const Search = () => {
           <ResultDiv>
             {playList.length > 0 && (
               <Items>
-                {results.map((track) => (
-                  <ResultItems key={track}>
-                    {playList.includes(track.id) ? (
-                      <>
-                        <ItemNames>
-                          <ItemImage
-                            src={track.album.images[0].url}
-                            alt={track.name}
-                            width={100}
-                            height={100}
-                          />
-                          <ItemDiv>
-                            <ItemName fontSize="4xl">
-                              {track.name} by{" "}
-                              {track.artists
-                                .map((artist: any) => artist.name)
-                                .join(", ")}
-                            </ItemName>
-                          </ItemDiv>
-                        </ItemNames>
-                        <ItemInfos>
-                          <Text>
-                            BPM: {getTrackInfo(track.id)?.tempo ?? "N/A"}
-                          </Text>
-                          <Text>
-                            ENERGY: {getTrackInfo(track.id)?.energy ?? "N/A"}
-                          </Text>
-                          <Text>
-                            MusicKEY: {getTrackInfo(track.id)?.key ?? "N/A"}
-                          </Text>
-                          <Text>
-                            Danceability:{" "}
-                            {getTrackInfo(track.id)?.danceability ?? "N/A"}
-                          </Text>
-                        </ItemInfos>
-                      </>
-                    ) : (
-                      <></>
-                    )}
+                {playList.map((track) => (
+                  <ResultItems key={track.id}>
+                    <ItemNames>
+                      <ItemImage
+                        src={track.album.images[0].url}
+                        alt={track.name}
+                        width={100}
+                        height={100}
+                      />
+                      <ItemDiv>
+                        <ItemName fontSize="4xl">
+                          {track.name} by{" "}
+                          {track.artists
+                            .map((artist: any) => artist.name)
+                            .join(", ")}
+                        </ItemName>
+                      </ItemDiv>
+                    </ItemNames>
+                    <ItemInfos>
+                      <Text>BPM: {getTrackInfo(track.id)?.tempo ?? "N/A"}</Text>
+                      <Text>
+                        ENERGY: {getTrackInfo(track.id)?.energy ?? "N/A"}
+                      </Text>
+                      <Text>
+                        MusicKEY: {getTrackInfo(track.id)?.key ?? "N/A"}
+                      </Text>
+                      <Text>
+                        Danceability:{" "}
+                        {getTrackInfo(track.id)?.danceability ?? "N/A"}
+                      </Text>
+                    </ItemInfos>
                   </ResultItems>
                 ))}
               </Items>
