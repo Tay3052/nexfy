@@ -1,6 +1,6 @@
 /* eslint-disable @next/next/no-img-element */
 "use client";
-import { useEffect, useState } from "react";
+import React, { useEffect, useState } from "react";
 import { useRouter, useSearchParams } from "next/navigation";
 import { Button, Text } from "@yamada-ui/react";
 import style from "styled-components";
@@ -9,7 +9,7 @@ import { TrackInfos } from "../interface/interface";
 import { Tabs, TabList, Tab, TabPanels, TabPanel } from "@yamada-ui/react";
 import { search, trackInfos, sleep } from "../api/search/route";
 
-const Search = () => {
+const Search: React.FC = () => {
   const router = useRouter();
   const searchParams = useSearchParams();
   const [accessToken, setAccessToken] = useState<string | null>(null);
@@ -63,16 +63,16 @@ const Search = () => {
     console.log(fetchedTrackInfos);
   };
 
-  const playListData: any[] = [];
   const handleAddToPlaylist = (trackId: string) => {
     try {
-      for (let i = 0; i < results.length; i++) {
-        if (results[i].id == trackId) {
-          playListData.push(results[i]);
+      const trackToAdd = results.find((track) => track.id === trackId);
+      setPlayList((prevPlayList) => {
+        // すでにtrackIdがプレイリストに存在するかチェック
+        if (prevPlayList.some((track) => track.id === trackId)) {
+          return prevPlayList;
         }
-      }
-      setPlayList(playListData);
-      console.log(playList);
+        return [...prevPlayList, trackToAdd];
+      });
     } catch (e) {
       console.log(e);
     }
@@ -99,7 +99,6 @@ const Search = () => {
       <Tabs align="center">
         <Tab>Result</Tab>
         <Tab>PlayList</Tab>
-
         <TabPanel>
           <ResultDiv>
             {results.length > 0 && (
