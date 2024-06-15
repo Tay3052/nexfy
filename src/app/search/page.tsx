@@ -2,7 +2,7 @@
 "use client";
 import React, { useEffect, useState } from "react";
 import { useRouter, useSearchParams } from "next/navigation";
-import { Button, Text } from "@yamada-ui/react";
+import { Button, Center, Text } from "@yamada-ui/react";
 import style from "styled-components";
 import { Input } from "@yamada-ui/react";
 import { TrackInfos } from "../interface/interface";
@@ -18,6 +18,7 @@ const Search: React.FC = () => {
   const [tracksInfos, setTracksInfos] = useState<TrackInfos[]>([]);
   const [playList, setPlayList] = useState<any[]>([]);
 
+  // アクセストークンの取得
   useEffect(() => {
     const token = searchParams.get("access_token");
     if (token) {
@@ -57,7 +58,7 @@ const Search: React.FC = () => {
         console.error(`Failed to fetch track info for ${trackId}`);
       }
       // 遅延を挿入する
-      await sleep(1000);
+      await sleep(10);
     }
     setTracksInfos(fetchedTrackInfos);
     console.log(fetchedTrackInfos);
@@ -78,6 +79,13 @@ const Search: React.FC = () => {
     }
   };
 
+  // プレイリストから削除
+  const handlePopFromPlaylist = (trackId: string) => {
+    setPlayList((prevPlayList) =>
+      prevPlayList.filter((track) => track.id !== trackId)
+    );
+  };
+
   const getTrackInfo = (trackId: string) => {
     return tracksInfos.find((info) => info.id === trackId);
   };
@@ -86,15 +94,17 @@ const Search: React.FC = () => {
     <SearchDiv>
       <H1>Search for a Song</H1>
       <SearchForm onSubmit={handleSearch}>
-        <SearchInput
-          type="text"
-          value={query}
-          onChange={(e) => setQuery(e.target.value)}
-          placeholder="Enter song name"
-        />
-        <Button colorScheme="secondary" type="submit">
-          Search
-        </Button>
+        <Center>
+          <SearchInput
+            type="text"
+            value={query}
+            onChange={(e) => setQuery(e.target.value)}
+            placeholder="Enter song name"
+          />
+          <Button colorScheme="secondary" type="submit">
+            Search
+          </Button>
+        </Center>
       </SearchForm>
       <Tabs align="center">
         <Tab>Result</Tab>
@@ -104,10 +114,11 @@ const Search: React.FC = () => {
             {results.length > 0 && (
               <Items>
                 {results.map((track) => (
-                  <ResultItems key={track.id}>
-                    <button
-                      value={track.id}
-                      onClick={() => handleAddToPlaylist(track.id)}>
+                  <button
+                    key={track.id}
+                    value={track.id}
+                    onClick={() => handleAddToPlaylist(track.id)}>
+                    <ResultItems key={track.id}>
                       <ItemNames>
                         <ItemImage
                           src={track.album.images[0].url}
@@ -116,7 +127,7 @@ const Search: React.FC = () => {
                           height={100}
                         />
                         <ItemDiv>
-                          <ItemName fontSize="4xl">
+                          <ItemName fontSize="2xl">
                             {track.name} by{" "}
                             {track.artists
                               .map((artist: any) => artist.name)
@@ -139,8 +150,8 @@ const Search: React.FC = () => {
                           {getTrackInfo(track.id)?.danceability ?? "N/A"}
                         </Text>
                       </ItemInfos>
-                    </button>
-                  </ResultItems>
+                    </ResultItems>
+                  </button>
                 ))}
               </Items>
             )}
@@ -152,37 +163,44 @@ const Search: React.FC = () => {
             {playList.length > 0 && (
               <Items>
                 {playList.map((track) => (
-                  <ResultItems key={track.id}>
-                    <ItemNames>
-                      <ItemImage
-                        src={track.album.images[0].url}
-                        alt={track.name}
-                        width={100}
-                        height={100}
-                      />
-                      <ItemDiv>
-                        <ItemName fontSize="4xl">
-                          {track.name} by{" "}
-                          {track.artists
-                            .map((artist: any) => artist.name)
-                            .join(", ")}
-                        </ItemName>
-                      </ItemDiv>
-                    </ItemNames>
-                    <ItemInfos>
-                      <Text>BPM: {getTrackInfo(track.id)?.tempo ?? "N/A"}</Text>
-                      <Text>
-                        ENERGY: {getTrackInfo(track.id)?.energy ?? "N/A"}
-                      </Text>
-                      <Text>
-                        MusicKEY: {getTrackInfo(track.id)?.key ?? "N/A"}
-                      </Text>
-                      <Text>
-                        Danceability:{" "}
-                        {getTrackInfo(track.id)?.danceability ?? "N/A"}
-                      </Text>
-                    </ItemInfos>
-                  </ResultItems>
+                  <button
+                    key={track.id}
+                    value={track.id}
+                    onClick={() => handlePopFromPlaylist(track.id)}>
+                    <ResultItems key={track.id}>
+                      <ItemNames>
+                        <ItemImage
+                          src={track.album.images[0].url}
+                          alt={track.name}
+                          width={100}
+                          height={100}
+                        />
+                        <ItemDiv>
+                          <ItemName fontSize="2xl">
+                            {track.name} by{" "}
+                            {track.artists
+                              .map((artist: any) => artist.name)
+                              .join(", ")}
+                          </ItemName>
+                        </ItemDiv>
+                      </ItemNames>
+                      <ItemInfos>
+                        <Text>
+                          BPM: {getTrackInfo(track.id)?.tempo ?? "N/A"}
+                        </Text>
+                        <Text>
+                          ENERGY: {getTrackInfo(track.id)?.energy ?? "N/A"}
+                        </Text>
+                        <Text>
+                          MusicKEY: {getTrackInfo(track.id)?.key ?? "N/A"}
+                        </Text>
+                        <Text>
+                          Danceability:{" "}
+                          {getTrackInfo(track.id)?.danceability ?? "N/A"}
+                        </Text>
+                      </ItemInfos>
+                    </ResultItems>
+                  </button>
                 ))}
               </Items>
             )}
@@ -196,16 +214,18 @@ const Search: React.FC = () => {
 export default Search;
 
 const SearchDiv = style.div`
+  
   text-align: center;
   margin-top: 5rem;`;
 
 const H1 = style.h1`
   font-size: 3rem;
-  margin: 0 0 50px 0;`;
+  margin: 50px 0 50px 0;`;
 
 const SearchForm = style.form`
   display: flex;
   justify-content: center;
+  margin: 0 0 50px 0;
   `;
 
 const SearchInput = style(Input)`
@@ -213,9 +233,9 @@ const SearchInput = style(Input)`
   width:60%`;
 
 const ResultDiv = style.div`
+  width: 70%;
   margin-top: 50px;
   text-align: left;
-    margin: 0 auto 50px auto;
 `;
 
 const ItemDiv = style.div`
@@ -225,13 +245,19 @@ const ItemDiv = style.div`
 `;
 
 const Items = style.ul`
-  width: 70%;
-  margin: 0 auto 0 auto;`;
+  
+  margin: 0 auto 0 auto;
+  display: flex;
+  flex-direction: column;`;
 
 const ResultItems = style.li`
+  width: 500px;
   border: 3px solid white;
   border-radius: 10px;
-  margin: 10px 10px 20px 10px;`;
+  margin: 10px auto 20px auto;
+  &:hover{
+    background-color: #010101;
+  };`;
 
 const ItemInfos = style.div`
   display: flex;
@@ -260,5 +286,12 @@ const ItemNames = style.div`
 
 const ItemName = style(Text)`
   margin: 0 0px 0 30px;
+  
+`;
 
+const SelectButton = style.button`
+  hover:{
+    cursor: pointer;
+    background-color: #f0f0f0;
+  }
 `;
