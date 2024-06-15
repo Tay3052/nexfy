@@ -12,9 +12,9 @@ export function Header() {
   return (
     <>
       <HeaderDiv>
-        <Title>Spotify Analyser</Title>
+        <Title>NexFy</Title>
         <NavButton colorScheme="danger" onClick={logout}>
-          Logout
+          終了
         </NavButton>
       </HeaderDiv>
     </>
