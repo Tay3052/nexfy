@@ -1,6 +1,6 @@
 /* eslint-disable @next/next/no-img-element */
 "use client";
-import React, { use, useEffect, useState } from "react";
+import React, { use, useEffect, useState, Suspense } from "react";
 import { useRouter, useSearchParams } from "next/navigation";
 import { Button, Center, Text, Pagination } from "@yamada-ui/react";
 import style from "styled-components";
@@ -122,140 +122,142 @@ const Search: React.FC = () => {
   };
 
   return (
-    <SearchDiv>
-      <H1>Search for a Song</H1>
-      <SearchForm onSubmit={handleSearch}>
-        <Center>
-          <SearchInput
-            type="text"
-            value={query}
-            onChange={(e) => setQuery(e.target.value)}
-            placeholder="Enter song name"
-          />
-          <Button colorScheme="secondary" type="submit">
-            Search
-          </Button>
-        </Center>
-      </SearchForm>
-      <Tabs align="center">
-        <Tab>Result</Tab>
-        <Tab>PlayList</Tab>
-        <TabPanel>
-          <ResultDiv>
-            {results.length > 0 && (
-              <Items>
-                {results.map((track) => (
-                  <button
-                    key={track.id}
-                    value={track.id}
-                    onClick={() => handleAddToPlaylist(track.id)}>
-                    <ResultItems key={track.id}>
-                      <ItemNames>
-                        <ItemImage
-                          src={track.album.images[0].url}
-                          alt={track.name}
-                          width={100}
-                          height={100}
-                        />
-                        <ItemDiv>
-                          <ItemName fontSize="2xl">
-                            {track.name} by{" "}
-                            {track.artists
-                              .map((artist: any) => artist.name)
-                              .join(", ")}
-                          </ItemName>
-                        </ItemDiv>
-                      </ItemNames>
-                      <ItemInfos>
-                        <Text>
-                          BPM: {getTrackInfo(track.id)?.tempo ?? "N/A"}
-                        </Text>
-                        <Text>
-                          ENERGY: {getTrackInfo(track.id)?.energy ?? "N/A"}
-                        </Text>
-                        <Text>
-                          MusicKEY: {getTrackInfo(track.id)?.key ?? "N/A"}
-                        </Text>
-                        <Text>
-                          Danceability:{" "}
-                          {getTrackInfo(track.id)?.danceability ?? "N/A"}
-                        </Text>
-                      </ItemInfos>
-                    </ResultItems>
-                  </button>
-                ))}
-              </Items>
-            )}
+    <Suspense fallback={<div>Loading...</div>}>
+      <SearchDiv>
+        <H1>Search for a Song</H1>
+        <SearchForm onSubmit={handleSearch}>
+          <Center>
+            <SearchInput
+              type="text"
+              value={query}
+              onChange={(e) => setQuery(e.target.value)}
+              placeholder="Enter song name"
+            />
+            <Button colorScheme="secondary" type="submit">
+              Search
+            </Button>
+          </Center>
+        </SearchForm>
+        <Tabs align="center">
+          <Tab>Result</Tab>
+          <Tab>PlayList</Tab>
+          <TabPanel>
+            <ResultDiv>
+              {results.length > 0 && (
+                <Items>
+                  {results.map((track) => (
+                    <button
+                      key={track.id}
+                      value={track.id}
+                      onClick={() => handleAddToPlaylist(track.id)}>
+                      <ResultItems key={track.id}>
+                        <ItemNames>
+                          <ItemImage
+                            src={track.album.images[0].url}
+                            alt={track.name}
+                            width={100}
+                            height={100}
+                          />
+                          <ItemDiv>
+                            <ItemName fontSize="2xl">
+                              {track.name} by{" "}
+                              {track.artists
+                                .map((artist: any) => artist.name)
+                                .join(", ")}
+                            </ItemName>
+                          </ItemDiv>
+                        </ItemNames>
+                        <ItemInfos>
+                          <Text>
+                            BPM: {getTrackInfo(track.id)?.tempo ?? "N/A"}
+                          </Text>
+                          <Text>
+                            ENERGY: {getTrackInfo(track.id)?.energy ?? "N/A"}
+                          </Text>
+                          <Text>
+                            MusicKEY: {getTrackInfo(track.id)?.key ?? "N/A"}
+                          </Text>
+                          <Text>
+                            Danceability:{" "}
+                            {getTrackInfo(track.id)?.danceability ?? "N/A"}
+                          </Text>
+                        </ItemInfos>
+                      </ResultItems>
+                    </button>
+                  ))}
+                </Items>
+              )}
 
-            <Center>
-              <Pagination
-                page={page}
-                total={10}
-                onChange={setPage}
-                onClick={handleSearchPaginate}
-              />
-            </Center>
-          </ResultDiv>
-        </TabPanel>
-        {/* Playlist */}
-        <TabPanel>
-          <ResultDiv>
-            {playList.length > 0 && (
-              <Items>
-                {playList.map((track) => (
-                  <button
-                    key={track.id}
-                    value={track.id}
-                    onClick={() => handlePopFromPlaylist(track.id)}>
-                    <ResultItems key={track.id}>
-                      <ItemNames>
-                        <ItemImage
-                          src={track.album.images[0].url}
-                          alt={track.name}
-                          width={100}
-                          height={100}
-                        />
-                        <ItemDiv>
-                          <ItemName fontSize="2xl">
-                            {track.name} by{" "}
-                            {track.artists
-                              .map((artist: any) => artist.name)
-                              .join(", ")}
-                          </ItemName>
-                        </ItemDiv>
-                      </ItemNames>
-                      <ItemInfos>
-                        <Text>
-                          BPM: {getTrackInfo(track.id)?.tempo ?? "N/A"}
-                        </Text>
-                        <Text>
-                          ENERGY: {getTrackInfo(track.id)?.energy ?? "N/A"}
-                        </Text>
-                        <Text>
-                          MusicKEY: {getTrackInfo(track.id)?.key ?? "N/A"}
-                        </Text>
-                        <Text>
-                          Danceability:{" "}
-                          {getTrackInfo(track.id)?.danceability ?? "N/A"}
-                        </Text>
-                      </ItemInfos>
-                    </ResultItems>
-                  </button>
-                ))}
-              </Items>
-            )}
-            <Center>
-              <Pagination
-                page={playlistPage}
-                total={10}
-                onChange={setPlaylistPage}
-                onClick={handleSearchPaginate}
-              />
-            </Center>
-          </ResultDiv>
-        </TabPanel>
-      </Tabs>
-    </SearchDiv>
+              <Center>
+                <Pagination
+                  page={page}
+                  total={10}
+                  onChange={setPage}
+                  onClick={handleSearchPaginate}
+                />
+              </Center>
+            </ResultDiv>
+          </TabPanel>
+          {/* Playlist */}
+          <TabPanel>
+            <ResultDiv>
+              {playList.length > 0 && (
+                <Items>
+                  {playList.map((track) => (
+                    <button
+                      key={track.id}
+                      value={track.id}
+                      onClick={() => handlePopFromPlaylist(track.id)}>
+                      <ResultItems key={track.id}>
+                        <ItemNames>
+                          <ItemImage
+                            src={track.album.images[0].url}
+                            alt={track.name}
+                            width={100}
+                            height={100}
+                          />
+                          <ItemDiv>
+                            <ItemName fontSize="2xl">
+                              {track.name} by{" "}
+                              {track.artists
+                                .map((artist: any) => artist.name)
+                                .join(", ")}
+                            </ItemName>
+                          </ItemDiv>
+                        </ItemNames>
+                        <ItemInfos>
+                          <Text>
+                            BPM: {getTrackInfo(track.id)?.tempo ?? "N/A"}
+                          </Text>
+                          <Text>
+                            ENERGY: {getTrackInfo(track.id)?.energy ?? "N/A"}
+                          </Text>
+                          <Text>
+                            MusicKEY: {getTrackInfo(track.id)?.key ?? "N/A"}
+                          </Text>
+                          <Text>
+                            Danceability:{" "}
+                            {getTrackInfo(track.id)?.danceability ?? "N/A"}
+                          </Text>
+                        </ItemInfos>
+                      </ResultItems>
+                    </button>
+                  ))}
+                </Items>
+              )}
+              <Center>
+                <Pagination
+                  page={playlistPage}
+                  total={10}
+                  onChange={setPlaylistPage}
+                  onClick={handleSearchPaginate}
+                />
+              </Center>
+            </ResultDiv>
+          </TabPanel>
+        </Tabs>
+      </SearchDiv>
+    </Suspense>
   );
 };
 
