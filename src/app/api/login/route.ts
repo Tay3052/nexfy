@@ -36,7 +36,7 @@ export async function GET(request: NextRequest) {
     state: state, // CSRF protection
   });
 
-  const url = `https://accounts.spotify.com/authorize?${params}`;
+  const url: string = `https://accounts.spotify.com/authorize?${params}`;
   console.log("Redirect URL:", url);
 
   return NextResponse.redirect(url);
