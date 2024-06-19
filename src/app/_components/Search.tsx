@@ -7,7 +7,7 @@ import style from "styled-components";
 import { Input } from "@yamada-ui/react";
 import { TrackInfos } from "../interface/interface";
 import { Tabs, TabList, Tab, TabPanels, TabPanel } from "@yamada-ui/react";
-import { search, trackInfos, sleep, paginate } from "../api/search/fetch";
+import { search, trackInfos, sleep, paginate } from "../api/search/route";
 
 const Search: React.FC = () => {
   const router = useRouter();
