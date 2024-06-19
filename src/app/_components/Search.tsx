@@ -302,7 +302,7 @@ const Items = style.ul`
 
 const ResultItems = style.li`
   width: 500px;
-  border: 3px solid white;
+  border: 3px solid gray;
   border-radius: 10px;
   margin: 10px auto 20px auto;
   &:hover{
