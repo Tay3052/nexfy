@@ -1,13 +1,13 @@
 /* eslint-disable @next/next/no-img-element */
 "use client";
-import React, { useEffect, useState } from "react";
+import React, { use, useEffect, useState } from "react";
 import { useRouter, useSearchParams } from "next/navigation";
-import { Button, Center, Text } from "@yamada-ui/react";
+import { Button, Center, Text, Pagination } from "@yamada-ui/react";
 import style from "styled-components";
 import { Input } from "@yamada-ui/react";
 import { TrackInfos } from "../interface/interface";
 import { Tabs, TabList, Tab, TabPanels, TabPanel } from "@yamada-ui/react";
-import { search, trackInfos, sleep } from "../api/search/route";
+import { search, trackInfos, sleep, paginate } from "../api/search/route";
 
 const Search: React.FC = () => {
   const router = useRouter();
@@ -17,6 +17,8 @@ const Search: React.FC = () => {
   const [results, setResults] = useState<any[]>([]);
   const [tracksInfos, setTracksInfos] = useState<TrackInfos[]>([]);
   const [playList, setPlayList] = useState<any[]>([]);
+  const [page, setPage] = useState<number>(1);
+  const [playlistPage, setPlaylistPage] = useState<number>(1);
 
   // アクセストークンの取得
   useEffect(() => {
@@ -39,6 +41,35 @@ const Search: React.FC = () => {
     e.preventDefault();
     if (!accessToken || !query) return;
     const res = await search(query, accessToken);
+    const data = await res.json();
+    console.log(data);
+    setResults(data.tracks.items);
+    console.log(data.tracks.items);
+
+    // 曲の情報を上で撮ってきたIDから取得
+    // 曲情報を保存するための配列を指定
+
+    const fetchedTrackInfos = [];
+    for (let i = 0; i < data.tracks.items.length; i++) {
+      const trackId = data.tracks.items[i].id;
+      const trackInfoResponse = await trackInfos(trackId, accessToken);
+      if (trackInfoResponse.ok) {
+        const trackData = await trackInfoResponse.json();
+        fetchedTrackInfos.push(trackData);
+      } else {
+        console.error(`Failed to fetch track info for ${trackId}`);
+      }
+      // 遅延を挿入する
+      await sleep(10);
+    }
+    setTracksInfos(fetchedTrackInfos);
+    console.log(fetchedTrackInfos);
+  };
+
+  const handleSearchPaginate = async (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!accessToken || !query) return;
+    const res = await paginate(query, accessToken, page);
     const data = await res.json();
     console.log(data);
     setResults(data.tracks.items);
@@ -155,6 +186,15 @@ const Search: React.FC = () => {
                 ))}
               </Items>
             )}
+
+            <Center>
+              <Pagination
+                page={page}
+                total={10}
+                onChange={setPage}
+                onClick={handleSearchPaginate}
+              />
+            </Center>
           </ResultDiv>
         </TabPanel>
         {/* Playlist */}
@@ -204,6 +244,14 @@ const Search: React.FC = () => {
                 ))}
               </Items>
             )}
+            <Center>
+              <Pagination
+                page={playlistPage}
+                total={10}
+                onChange={setPlaylistPage}
+                onClick={handleSearchPaginate}
+              />
+            </Center>
           </ResultDiv>
         </TabPanel>
       </Tabs>
