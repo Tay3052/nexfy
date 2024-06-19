@@ -18,6 +18,7 @@ const Search: React.FC = () => {
   const [tracksInfos, setTracksInfos] = useState<TrackInfos[]>([]);
   const [playList, setPlayList] = useState<any[]>([]);
   const [page, setPage] = useState<number>(1);
+  const [playlistPage, setPlaylistPage] = useState<number>(1);
 
   // アクセストークンの取得
   useEffect(() => {
@@ -65,7 +66,7 @@ const Search: React.FC = () => {
     console.log(fetchedTrackInfos);
   };
 
-  const handlePaginate = async (e: React.FormEvent) => {
+  const handleSearchPaginate = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!accessToken || !query) return;
     const res = await paginate(query, accessToken, page);
@@ -185,6 +186,15 @@ const Search: React.FC = () => {
                 ))}
               </Items>
             )}
+
+            <Center>
+              <Pagination
+                page={page}
+                total={10}
+                onChange={setPage}
+                onClick={handleSearchPaginate}
+              />
+            </Center>
           </ResultDiv>
         </TabPanel>
         {/* Playlist */}
@@ -234,17 +244,17 @@ const Search: React.FC = () => {
                 ))}
               </Items>
             )}
+            <Center>
+              <Pagination
+                page={playlistPage}
+                total={10}
+                onChange={setPlaylistPage}
+                onClick={handleSearchPaginate}
+              />
+            </Center>
           </ResultDiv>
         </TabPanel>
       </Tabs>
-      <Center>
-        <Pagination
-          page={page}
-          total={10}
-          onChange={setPage}
-          onClick={handlePaginate}
-        />
-      </Center>
     </SearchDiv>
   );
 };
