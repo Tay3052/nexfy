@@ -306,7 +306,7 @@ const ResultItems = style.li`
   border-radius: 10px;
   margin: 10px auto 20px auto;
   &:hover{
-    background-color: #f0f8ff;
+    background-color: #66cdaa;
   };`;
 
 const ItemInfos = style.div`
