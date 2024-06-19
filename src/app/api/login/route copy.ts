@@ -16,16 +16,7 @@ function generateRandomString(length: number) {
 }
 
 export async function GET(request: NextRequest) {
-  console.log("GET request received");
-
-  if (!client_id || !redirect_uri) {
-    console.error("Missing environment variables");
-    return new NextResponse("Internal Server Error", { status: 500 });
-  }
-
   const state = generateRandomString(16);
-  console.log("Generated state:", state);
-
   const scope = "user-read-private user-read-email";
 
   const params = querystring.stringify({
@@ -37,7 +28,5 @@ export async function GET(request: NextRequest) {
   });
 
   const url = `https://accounts.spotify.com/authorize?${params}`;
-  console.log("Redirect URL:", url);
-
   return NextResponse.redirect(url);
 }
